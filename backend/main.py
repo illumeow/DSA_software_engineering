@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -14,6 +14,7 @@ app.add_middleware(
 )
 
 # 建立一個假的 Stack
+history_log =[]
 stack = []
 size = 0
 max_size = 1000  # 最大 stack 大小
@@ -32,7 +33,6 @@ class Create_Item(BaseModel):
 class Item(BaseModel):
     value: str  # push 的時候只要 value，不要 maxsize
 
-
 @app.post("/stack/create")
 async def create_stack(item: Create_Item):
     global stack, compare_method,size,max_size
@@ -50,40 +50,52 @@ async def create_stack(item: Create_Item):
 async def push_item(item: Item):
     temp = []
     temp_size = 0
-    global stack, size, compare_method,max_size
+    #2 dimensional array
+    re_arr = [] 
+    method_arr = []
+    global stack, size, compare_method,max_size,history_log
     if(size>=max_size):
-        return {"message": "Stack is full", "stack": stack}
+        return {"message": "Stack is full", "stack": stack,"history": history_log}
     while(size>0):
         if(cmp(int(item.value),int(stack[size-1]),compare_method)<0):
-            temp.append(stack[size-1])
-            temp_size+=1
+            value = stack[size-1]
             stack.pop()
-            size-=1            
+            temp = stack.copy()
+            # 每個array的最後存type:value
+            size-=1
+            method_arr.append(f"pop:{value}")     
+            history_log.append(f"pop:{value}")     
+            re_arr.append(temp)
         else: 
             break
-        
+    history_log.append(f"push:{item.value}")
+    temp = stack.copy()
+    method_arr.append(f"push:{item.value}")
+    re_arr.append(temp)
     stack.append(item.value)
     size+=1
-    while(temp_size>0):
-        stack.append(temp[temp_size-1])
-        size+=1
-        temp.pop()
-        temp_size-=1
+    print("hi")
+    for i in range(len(re_arr)):
+            print("re_arr",len(re_arr[i]))
 
-    return {"message": "Pushed successfully", "stack": stack}
+    return {"message": "Pushed successfully", "stack": stack,"history": history_log, "return_arr":re_arr,"method_arr":method_arr}
 
 # POP
 @app.post("/stack/pop")
 async def pop_item():
-    global size
+    global size,history_log
+    re_arr = []
     size-=1
     if stack:
         removed = stack.pop()
-        return {"message": f"Popped {removed}", "stack": stack}
-    return {"message": "Stack is empty size{size}", "stack": stack}
+        re_arr=stack.copy()
+        history_log.append(f"pop:{removed}")
+        return {"message": f"Popped {removed}", "stack": stack,"history": history_log}
+    
+    return {"message": "Stack is empty size{size}", "stack": stack,"history": history_log,"return_arr":re_arr}
 
 # GET 全部 stack
-@app.get("/stack")
+@app.get("/stack/status")
 async def get_stack():
     return stack
 
@@ -94,3 +106,8 @@ async def clear_stack():
     stack.clear()
     size = 0
     return {"message": "Stack cleared", "stack": stack}
+@app.post("/stack/clear_log")
+async def clear_log():
+    global history_log
+    history_log = []
+    return {"message": "Log cleared", "history": history_log}
