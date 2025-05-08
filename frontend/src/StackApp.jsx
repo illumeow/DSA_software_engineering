@@ -8,6 +8,7 @@ function App() {
   const [message, setMessage] = useState('');
   const [maxSize, setMaxSize] = useState('');
   const [history, setHistory] = useState([]);
+  const [floating, setFloating] = useState(null);
 
   // Create Stack function
   const createStack = async (method) => {
@@ -36,11 +37,17 @@ function App() {
       return;
     }
     try {
-      const response = await axios.post('http://127.0.0.1:8000/stack/push', {
-        value: newItem,
-      });
+      const response = await axios.post('http://127.0.0.1:8000/stack/push', { value: newItem });
       setStack(response.data.stack);
       setMessage(response.data.message);
+
+      // Animate all popped elements
+      if (response.data.popped && response.data.popped.length > 0) {
+        // If multiple, animate one by one, or all together
+        setFloating(response.data.popped.join(', ')); // Show all popped as a string
+        setTimeout(() => setFloating(null), 1500);
+      }
+
       setHistory(response.data.history || []);
       setNewItem('');
     } catch (error) {
@@ -106,64 +113,128 @@ function App() {
   };
 
   return (
-    <div className="App" style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>Stack App</h1>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10">
+      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+        <h1 className="text-3xl font-bold text-center mb-6 text-blue-700">Stack App</h1>
 
-      <div style={{ marginBottom: '10px' }}>
-        <input
-          type="number"
-          value={maxSize}
-          onChange={(e) => setMaxSize(e.target.value)}
-          placeholder="Enter max size"
-        />
-      </div>
+        <div className="mb-4">
+          <input
+            type="number"
+            value={maxSize}
+            onChange={(e) => setMaxSize(e.target.value)}
+            placeholder="Enter max size"
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
 
-      <div style={{ marginBottom: '10px' }}>
-        <button onClick={() => createStack(0)}>創建 Stack (降序)</button>
-        <button onClick={() => createStack(1)} style={{ marginLeft: '5px' }}>
-          創建 Stack (升序)
-        </button>
-      </div>
+        <div className="mb-4 flex gap-2">
+          <button
+            onClick={() => createStack(0)}
+            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded transition"
+          >
+            創建 Stack (降序)
+          </button>
+          <button
+            onClick={() => createStack(1)}
+            className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded transition"
+          >
+            創建 Stack (升序)
+          </button>
+        </div>
 
-      <div style={{ marginBottom: '10px' }}>
-        <input
-          type="text"
-          value={newItem}
-          onChange={(e) => setNewItem(e.target.value)}
-          placeholder="Enter a number"
-        />
-        <button onClick={pushItem} style={{ marginLeft: '5px' }}>
-          Push Item
-        </button>
-        <button onClick={popItem} style={{ marginLeft: '5px' }}>
-          Pop Item
-        </button>
-        <button onClick={clearStack} style={{ marginLeft: '5px' }}>
-          Clear Stack
-        </button>
-        <button onClick={clear_log} style={{ marginLeft: '5px' }}>
-          Clear log
-        </button>
-      </div>
+        <div className="mb-4 flex gap-2">
+          <input
+            type="text"
+            value={newItem}
+            onChange={(e) => setNewItem(e.target.value)}
+            placeholder="Enter a number"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <button
+            onClick={pushItem}
+            className="bg-blue-400 hover:bg-blue-500 text-white font-semibold px-3 py-2 rounded transition"
+          >
+            Push
+          </button>
+          <button
+            onClick={popItem}
+            className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-3 py-2 rounded transition"
+          >
+            Pop
+          </button>
+        </div>
 
-      <div style={{ marginBottom: '10px', color: 'blue' }}>
-        <h3>{message}</h3>
-      </div>
+        <div className="mb-4 flex gap-2">
+          <button
+            onClick={clearStack}
+            className="flex-1 bg-red-400 hover:bg-red-500 text-white font-semibold py-2 rounded transition"
+          >
+            Clear Stack
+          </button>
+          <button
+            onClick={clear_log}
+            className="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 rounded transition"
+          >
+            Clear Log
+          </button>
+        </div>
 
-      <div style={{ marginBottom: '10px' }}>
-        <strong>元素數量：</strong> {stack.length} / 
-        <strong> 最大容量：</strong> {maxSize || "未設定"}
-      </div>
+        <div className="mb-4 text-blue-600 text-center min-h-[24px]">
+          <h3>{message}</h3>
+        </div>
 
-      <div>
-        <h2>Stack Content</h2>
-        <ul>{displayStack()}</ul>
+        <div className="mb-4 text-center">
+          <span className="font-semibold">元素數量：</span> {stack.length} / 
+          <span className="font-semibold"> 最大容量：</span> {maxSize || "未設定"}
+        </div>
+
+        <div className="relative flex flex-col items-center">
+          {/* Stack 內容 */}
+          <div className="flex flex-col-reverse items-center gap-2">
+            {stack.map((item, idx) => (
+              <div
+                key={idx}
+                className={`
+                  relative flex items-center justify-center h-12 rounded-xl
+                  min-w-[180px]
+                  transition-all duration-500 ease-out
+                  ${idx === stack.length - 1
+                    ? 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-400 text-white font-extrabold shadow-2xl scale-110 ring-4 ring-pink-300/60'
+                    : 'bg-white/80 text-gray-800 shadow-md border border-gray-200/60'}
+                  hover:scale-105 hover:shadow-xl
+                `}
+                style={{
+                  boxShadow: idx === stack.length - 1
+                    ? '0 4px 32px 0 rgba(236, 72, 153, 0.25), 0 1.5px 6px 0 rgba(59, 130, 246, 0.15)'
+                    : undefined
+                }}
+              >
+                {item}
+                {idx === stack.length - 1 && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs bg-pink-500/90 text-white px-2 py-0.5 rounded-full shadow-lg animate-pulse">
+                    Top
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+          {/* 飄移動畫 */}
+          {floating && (
+            <div
+              className="absolute left-1/2 -translate-x-1/2 top-0 animate-float-out bg-pink-400 text-white font-bold px-8 py-2 rounded-xl shadow-2xl z-20 min-w-[180px]"
+              style={{ pointerEvents: 'none' }}
+            >
+              {floating}
+            </div>
+          )}
+        </div>
+        <div>
+          <h2 className="text-xl font-bold mb-2 text-gray-700">History Log</h2>
+          <ul className="bg-gray-100 rounded p-3 min-h-[40px]">
+            {displayhis_log()}
+          </ul>
+        </div>
       </div>
-      <div>
-        <h2>history_log</h2>
-        <ul>{displayhis_log()}</ul>
-      </div>
-      
     </div>
   );
 }

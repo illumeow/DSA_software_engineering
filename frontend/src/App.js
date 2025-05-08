@@ -5,7 +5,6 @@ import StackApp from './StackApp'; // 引入你的 StackApp 組件
 function App() {
   return (
     <div className="App">
-      <h1>Stack App</h1>
       <StackApp /> {/* 顯示 StackApp 組件 */}
     </div>
   );
