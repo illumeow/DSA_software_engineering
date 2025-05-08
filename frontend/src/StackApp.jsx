@@ -41,11 +41,21 @@ function App() {
       setStack(response.data.stack);
       setMessage(response.data.message);
 
-      // Animate all popped elements
-      if (response.data.popped && response.data.popped.length > 0) {
-        // If multiple, animate one by one, or all together
-        setFloating(response.data.popped.join(', ')); // Show all popped as a string
-        setTimeout(() => setFloating(null), 1500);
+      // Sequentially animate each popped element
+      const poppedQueue = response.data.popped || [];
+      const animateNext = (queue) => {
+        if (queue.length === 0) {
+          setFloating(null);
+          return;
+        }
+        setFloating(queue[0]);
+        setTimeout(() => {
+          setFloating(null);
+          setTimeout(() => animateNext(queue.slice(1)), 100); // small gap between animations
+        }, 1500); // match your animation duration
+      };
+      if (poppedQueue.length > 0) {
+        animateNext(poppedQueue);
       }
 
       setHistory(response.data.history || []);
@@ -61,6 +71,17 @@ function App() {
     try {
       const response = await axios.post('http://127.0.0.1:8000/stack/pop');
       if (response.data.stack) {
+        // Find the popped element from the history log or response
+        // If your backend returns the popped value, use it directly
+        const popped = response.data.message?.startsWith("Popped ")
+          ? response.data.message.replace("Popped ", "")
+          : null;
+
+        if (popped) {
+          setFloating(popped);
+          setTimeout(() => setFloating(null), 1500);
+        }
+
         setStack(response.data.stack);
         setMessage(response.data.message);
         setHistory(response.data.history);
@@ -228,7 +249,7 @@ function App() {
             </div>
           )}
         </div>
-        <div>
+        <div className="mt-10">
           <h2 className="text-xl font-bold mb-2 text-gray-700">History Log</h2>
           <ul className="bg-gray-100 rounded p-3 min-h-[40px]">
             {displayhis_log()}
