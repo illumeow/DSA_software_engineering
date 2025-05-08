@@ -50,19 +50,19 @@ async def create_stack(item: Create_Item):
 async def push_item(item: Item):
     temp = []
     temp_size = 0
-    #2 dimensional array
     re_arr = [] 
     method_arr = []
-    global stack, size, compare_method,max_size,history_log
-    if(size>=max_size):
-        return {"message": "Stack is full", "stack": stack,"history": history_log}
-    while(size>0):
-        if(cmp(int(item.value),int(stack[size-1]),compare_method)<0):
+    popped = []
+    global stack, size, compare_method, max_size, history_log
+    if(size >= max_size):
+        return {"message": "Stack is full", "stack": stack, "history": history_log, "popped": popped}
+    while(size > 0):
+        if(cmp(int(item.value), int(stack[size-1]), compare_method) < 0):
             value = stack[size-1]
             stack.pop()
+            popped.append(value)
             temp = stack.copy()
-            # 每個array的最後存type:value
-            size-=1
+            size -= 1
             method_arr.append(f"pop:{value}")     
             history_log.append(f"pop:{value}")     
             re_arr.append(temp)
@@ -73,12 +73,16 @@ async def push_item(item: Item):
     method_arr.append(f"push:{item.value}")
     re_arr.append(temp)
     stack.append(item.value)
-    size+=1
-    print("hi")
-    for i in range(len(re_arr)):
-            print("re_arr",len(re_arr[i]))
+    size += 1
 
-    return {"message": "Pushed successfully", "stack": stack,"history": history_log, "return_arr":re_arr,"method_arr":method_arr}
+    return {
+        "message": "Pushed successfully",
+        "stack": stack,
+        "history": history_log,
+        "return_arr": re_arr,
+        "method_arr": method_arr,
+        "popped": popped
+    }
 
 # POP
 @app.post("/stack/pop")
