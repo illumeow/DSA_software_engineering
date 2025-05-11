@@ -1,10 +1,10 @@
-from fastapi import FastAPI,WebSocket, WebSocketDisconnect
+from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# 加 CORS，這樣前端可以直接連
+# add CORS, so the frontend can connect to the backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,105 +13,92 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 建立一個假的 Stack
-history_log =[]
+
+history_log = []
+
 stack = []
 size = 0
-max_size = 1000  # 最大 stack 大小
-# 定義比較函數
-# method==0 大於 method==1 小於  
-compare_method = 0  
-def cmp(a,b,x)->int:
-    if x==0:
-        return int(a-b)
-    elif x==1:
-        return int(b-a)
-# 定義接收格式
+maxsize = 0
+
+compare_method = 0  # 0: decreasing, 1: increasing
+
+def cmp(a: int, b: int, x: int) -> int:
+    if x == 0:
+        return a > b
+    elif x == 1:
+        return a < b
+    
+# define the format of the data received
 class Create_Item(BaseModel):
-    value: str  # 可以是文字，想要 int 的話改成 int
-    maxsize: int  # 最大 stack 大小
+    value: str  # can be string or int
+    maxsize: int
+
 class Item(BaseModel):
-    value: str  # push 的時候只要 value，不要 maxsize
+    value: str  # only need value for push
 
 @app.post("/stack/create")
 async def create_stack(item: Create_Item):
-    global stack, compare_method,size,max_size
-    stack = []  # 重建新的空 stack
+    global stack, compare_method, size, maxsize, history_log
+    stack = []  # rebuild a new empty stack
     size = 0
-    max_size = item.maxsize  # 從 item 取出 maxsize
-    compare_method = int(item.value)  # 記住比較方法
+    maxsize = item.maxsize  # get maxsize from item
+    compare_method = int(item.value)  # remember the compare method
+
+    history_log.append(f"with max size: {maxsize}")
+    history_log.append(f"Create Stack ({'Decreasing' if compare_method == 0 else 'Increasing'})")
+
     return {
         "message": "Stack created",
         "stack": stack,
-        "compare_method": compare_method
+        "history": history_log
     }
-# PUSH (接收參數)
+
+# PUSH (receive parameters)
 @app.post("/stack/push")
 async def push_item(item: Item):
-    temp = []
-    temp_size = 0
-    re_arr = [] 
-    method_arr = []
+    global stack, size, compare_method, maxsize, history_log
     popped = []
-    global stack, size, compare_method, max_size, history_log
-    if(size >= max_size):
+
+    if(size >= maxsize):
         return {"message": "Stack is full", "stack": stack, "history": history_log, "popped": popped}
-    while(size > 0):
-        if(cmp(int(item.value), int(stack[size-1]), compare_method) < 0):
-            value = stack[size-1]
-            stack.pop()
-            popped.append(value)
-            temp = stack.copy()
-            size -= 1
-            method_arr.append(f"pop:{value}")     
-            history_log.append(f"pop:{value}")     
-            re_arr.append(temp)
-        else: 
-            break
-    history_log.append(f"push:{item.value}")
-    temp = stack.copy()
-    method_arr.append(f"push:{item.value}")
-    re_arr.append(temp)
+    
+    while(size > 0 and cmp(int(item.value), int(stack[size-1]), compare_method)):
+        value = stack.pop()
+        popped.append(value)
+        size -= 1    
+        history_log.append(f"pop: {value}")   
+
     stack.append(item.value)
     size += 1
+
+    history_log.append(f"push: {item.value}")
 
     return {
         "message": "Pushed successfully",
         "stack": stack,
         "history": history_log,
-        "return_arr": re_arr,
-        "method_arr": method_arr,
         "popped": popped
     }
 
-# POP
 @app.post("/stack/pop")
 async def pop_item():
-    global size,history_log
-    re_arr = []
-    size-=1
-    if stack:
-        removed = stack.pop()
-        re_arr=stack.copy()
-        history_log.append(f"pop:{removed}")
-        return {"message": f"Popped {removed}", "stack": stack,"history": history_log}
-    
-    return {"message": "Stack is empty size{size}", "stack": stack,"history": history_log,"return_arr":re_arr}
+    global size, history_log
+    # stack will not be empty, because we check it in the frontend
+    removed = stack.pop()
+    size -= 1
+    history_log.append(f"pop: {removed}")
+    return {"message": f"Popped {removed}", "stack": stack, "history": history_log}
 
-# GET 全部 stack
-@app.get("/stack/status")
-async def get_stack():
-    return stack
-
-# 清空 Stack
 @app.post("/stack/clear")
 async def clear_stack():
-    global stack,size
+    global stack, size, history_log
     stack.clear()
     size = 0
-    return {"message": "Stack cleared", "stack": stack}
+    history_log.append("Clear Stack")
+    return {"message": "Stack cleared", "stack": stack, "history": history_log}
+
 @app.post("/stack/clear_log")
 async def clear_log():
     global history_log
-    history_log = []
-    return {"message": "Log cleared", "history": history_log}
+    history_log.clear()
+    return {"message": "History Log cleared", "history": history_log}

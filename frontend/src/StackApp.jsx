@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 
 function App() {
   const [stack, setStack] = useState([]); // Now stores { value: any, id: string, animation: 'in' | 'out' | 'idle' }
-  const [compareMethod, setCompareMethod] = useState(0);
   const [newItem, setNewItem] = useState('');
   const [message, setMessage] = useState('');
   const [maxSize, setMaxSize] = useState('');
   const [history, setHistory] = useState([]);
+  const [currentMaxSize, setCurrentMaxSize] = useState('');
   
   const animationItemIdCounter = useRef(0);
 
@@ -86,21 +86,17 @@ function App() {
   // Create Stack function
   const createStack = async (method) => {
     try {
-      const payload = { value: method.toString() };
-      if (maxSize !== '') {
-        payload.maxsize = parseInt(maxSize, 10);
+      if (!maxSize || maxSize === '') {
+        setMessage('Please enter a max stack size.');
+        return;
       }
-
+      const payload = { value: method.toString(), maxsize: parseInt(maxSize, 10) };
       const response = await axios.post('http://127.0.0.1:8000/stack/create', payload);
       setStack(mapBackendStack(response.data.stack));
-      setCompareMethod(method);
       setMessage(response.data.message);
-      if (response.data.maxsize !== undefined) {
-        setMaxSize(response.data.maxsize);
-      } else {
-        setMaxSize('');
-      }
       setHistory(response.data.history || []);
+      setCurrentMaxSize(maxSize);
+      setMaxSize('');
     } catch (error) {
       console.error('Error creating stack:', error);
       setMessage('Failed to create stack.');
@@ -191,8 +187,8 @@ function App() {
   
   // Pop item from stack
   const popItem = async () => {
-    if (stack.every(item => item.animation === 'out') || stack.length === 0) {
-      setMessage("Stack is empty or items are already popping.");
+    if (stack.length === 0) {
+      setMessage("Stack is empty.");
       return;
     }
     
@@ -206,7 +202,7 @@ function App() {
     }
 
     if (!topItemToPopId) {
-        setMessage("No item available to pop (all might be animating out).");
+        setMessage("No item available to pop (all items might be animating out).");
         return;
     }
 
@@ -260,13 +256,24 @@ function App() {
     }
   };
   
+  
   const displayhis_log = () => {
     if (!history || history.length === 0) {
       return <li className="text-gray-500 italic">(history is empty)</li>;
     }
-    return history.slice().map((item, index) => (
-      <li key={index} className="text-sm text-gray-700 break-all">{item}</li>
-    ));
+
+    const reversedHistory = history.slice().reverse()
+    let ret = []
+    for (let i = 0; i < reversedHistory.length; i++) {
+      const item = reversedHistory[i];
+      if (item.startsWith("Create Stack")) {
+        ret.push(<li className="text-sm text-gray-700 break-all">{item}<br/>{reversedHistory[i+1]}</li>);
+        i++;
+      } else {
+        ret.push(<li className="text-sm text-gray-700 break-all">{item}</li>);
+      }
+    }
+    return ret;
   };
 
 
@@ -285,7 +292,7 @@ function App() {
                 type="number"
                 value={maxSize}
                 onChange={(e) => setMaxSize(e.target.value)}
-                placeholder="Enter max stack size (optional)"
+                placeholder="Enter max stack size"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
               />
               <div className="flex gap-2">
@@ -293,13 +300,13 @@ function App() {
                   onClick={() => createStack(0)}
                   className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105"
                 >
-                  Create Stack (Descending)
+                  Create Stack (Decreasing)
                 </button>
                 <button
                   onClick={() => createStack(1)}
                   className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105"
                 >
-                  Create Stack (Ascending)
+                  Create Stack (Increasing)
                 </button>
               </div>
             </div>
@@ -349,7 +356,7 @@ function App() {
             
             <div className="mb-4 text-center text-gray-700">
               <span className="font-semibold">Items:</span> {stack.filter(item => item.animation !== 'out').length} / 
-              <span className="font-semibold"> Max Size:</span> {maxSize || "N/A"}
+              <span className="font-semibold"> Max Size:</span> {currentMaxSize || "N/A"}
             </div>
 
             {/* Stack Visualization with U-Container */}

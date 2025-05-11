@@ -38,7 +38,7 @@ code {
   border-bottom: 3px solid #9ca3af;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
-  padding: 10px 10px 0px 10px; /* Padding for items inside */
+  padding: 10px 10px 5px 10px; /* Padding for items inside */
   min-height: 100px; /* Ensure U-shape is visible even if empty */
   width: 220px; /* Fixed width for the U-shape container */
   margin: 0 auto; /* Center the U-shape container */
