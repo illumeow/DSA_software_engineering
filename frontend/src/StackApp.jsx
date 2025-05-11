@@ -303,40 +303,44 @@ function App() {
         {/* Introduction Modal */}
         {showIntro && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-bold text-gray-800">Introduction to Monotonic Stack</h2>
+            <div className="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 max-h-[60vh] overflow-y-auto">
+              <div className="flex flex-row items-center mb-4">
+                <h2 className="text-2xl font-bold text-gray-800 flex-grow text-center">Introduction to Monotonic Stack</h2>
                 <button
                   onClick={() => setShowIntro(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 hover:text-gray-700 w-[10px] text-right"
                 >
                   ✕
                 </button>
               </div>
               <div className="space-y-4 text-gray-700">
-                <p>A monotonic stack is a stack that maintains a specific order (either increasing or decreasing) of its elements. It's particularly useful for solving problems involving finding the next greater/smaller element or maintaining a specific order of elements.</p>
+                <p>
+                  A monotonic stack is a stack that maintains its elements in either increasing or decreasing order.
+                  The order goes from bottom to top.
+                  It's particularly useful for solving problems involving finding the next greater/smaller element.
+                  This technique helps reduce the time complexity of many problems from O(n²) to O(n) by ensuring that each element is pushed and popped at most once.
+                </p>
                 
                 <h3 className="font-semibold text-lg text-gray-800">Key Characteristics:</h3>
-                <ul className="list-disc pl-5 space-y-2">
-                  <li>Elements are always in a specific order (monotonically increasing or decreasing)</li>
-                  <li>When a new element is pushed, elements that violate the order are popped</li>
-                  <li>Efficient for finding next greater/smaller elements</li>
+                <ul className="list-disc pl-5 space-y-2 mx-auto max-w-fit">
+                  <li className="text-left">Elements are always monotonic</li>
+                  <li className="text-left">When a new element is pushed, <br />elements that violate the order are popped</li>
                 </ul>
 
                 <h3 className="font-semibold text-lg text-gray-800">Common Applications:</h3>
-                <ul className="list-disc pl-5 space-y-2">
-                  <li>Finding the next greater/smaller element in an array</li>
-                  <li>Finding the largest rectangle in a histogram</li>
-                  <li>Solving sliding window maximum/minimum problems</li>
-                  <li>Maintaining a specific order of elements in a sequence</li>
+                <ul className="list-disc pl-5 space-y-2 mx-auto max-w-fit">
+                  <li className="text-left">Finding the next greater/smaller element in an array</li>
+                  <li className="text-left">Finding the largest rectangle in a histogram</li>
+                  <li className="text-left">Solving sliding window maximum/minimum problems</li>
+                  <li className="text-left">Maintaining a specific order of elements in a sequence</li>
                 </ul>
 
                 <h3 className="font-semibold text-lg text-gray-800">How to Use This Explorer:</h3>
-                <ol className="list-decimal pl-5 space-y-2">
-                  <li>Choose whether you want an increasing or decreasing monotonic stack</li>
-                  <li>Set the maximum size of your stack</li>
-                  <li>Push elements to see how they affect the stack</li>
-                  <li>Watch how elements are automatically popped to maintain the monotonic property</li>
+                <ol className="list-decimal pl-5 space-y-2 mx-auto max-w-fit">
+                  <li className="text-left">Set the maximum size of your stack</li>
+                  <li className="text-left">Create a monotonic increasing or decreasing stack</li>
+                  <li className="text-left">Push elements to see how they affect the stack</li>
+                  <li className="text-left">Watch how elements are automatically popped <br />to maintain the monotonic property</li>
                 </ol>
               </div>
             </div>
