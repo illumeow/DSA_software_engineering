@@ -465,7 +465,7 @@ function App() {
           {/* History Log Column */}
           <div className="lg:w-1/3 lg:border-l lg:pl-8 border-gray-200">
             <h2 className="text-2xl font-semibold mb-4 text-gray-800 sticky top-0 bg-white py-2">History Log</h2>
-            <ul className="bg-gray-50 rounded-lg p-4 space-y-2 min-h-[200px] max-h-[500px] overflow-y-auto shadow-inner">
+            <ul style={{ height: `${stack.length > 1 ? `calc(${188 + 8 * stack.length}px + ${(19 + stack.length * 12) * 0.25}rem)` : 'calc(278px + 4.75rem)'}` }} className="bg-gray-50 rounded-lg p-4 space-y-2 overflow-y-auto shadow-inner">
               {displayhis_log()}
             </ul>
           </div>
