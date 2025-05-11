@@ -8,6 +8,7 @@ function App() {
   const [maxSize, setMaxSize] = useState('');
   const [history, setHistory] = useState([]);
   const [currentMaxSize, setCurrentMaxSize] = useState('');
+  const [showIntro, setShowIntro] = useState(false);
   
   const animationItemIdCounter = useRef(0);
 
@@ -280,9 +281,64 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10 px-4">
       <div className="bg-white shadow-2xl rounded-xl p-8 w-full max-w-4xl">
-        <h1 className="text-4xl font-bold text-center mb-8 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-          Monotonic Stack Explorer
-        </h1>
+        <div className="flex flex-col lg:flex-row gap-8 mb-8">
+          <div className="flex-grow lg:w-2/3 justify-center">
+            <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+              Monotonic Stack Explorer
+            </h1>
+          </div>
+          <div className="flex-grow lg:w-1/3 lg:pl-8 justify-end">
+            <button
+              onClick={() => setShowIntro(true)}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105"
+            >
+              What is Monotonic Stack?
+            </button>
+          </div>
+        </div>
+
+        {/* Introduction Modal */}
+        {showIntro && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-2xl font-bold text-gray-800">Introduction to Monotonic Stack</h2>
+                <button
+                  onClick={() => setShowIntro(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="space-y-4 text-gray-700">
+                <p>A monotonic stack is a stack that maintains a specific order (either increasing or decreasing) of its elements. It's particularly useful for solving problems involving finding the next greater/smaller element or maintaining a specific order of elements.</p>
+                
+                <h3 className="font-semibold text-lg text-gray-800">Key Characteristics:</h3>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>Elements are always in a specific order (monotonically increasing or decreasing)</li>
+                  <li>When a new element is pushed, elements that violate the order are popped</li>
+                  <li>Efficient for finding next greater/smaller elements</li>
+                </ul>
+
+                <h3 className="font-semibold text-lg text-gray-800">Common Applications:</h3>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>Finding the next greater/smaller element in an array</li>
+                  <li>Finding the largest rectangle in a histogram</li>
+                  <li>Solving sliding window maximum/minimum problems</li>
+                  <li>Maintaining a specific order of elements in a sequence</li>
+                </ul>
+
+                <h3 className="font-semibold text-lg text-gray-800">How to Use This Explorer:</h3>
+                <ol className="list-decimal pl-5 space-y-2">
+                  <li>Choose whether you want an increasing or decreasing monotonic stack</li>
+                  <li>Set the maximum size of your stack</li>
+                  <li>Push elements to see how they affect the stack</li>
+                  <li>Watch how elements are automatically popped to maintain the monotonic property</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Controls and Stack Visualization Column */}
