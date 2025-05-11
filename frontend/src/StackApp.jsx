@@ -117,6 +117,9 @@ function App() {
       setMessage(responseMessage);
       setHistory(newHistory || []);
 
+      if(responseMessage === "Stack is full") {
+        return;
+      }
       // --- Animation Sequence ---
       let currentAnimatedStack = [...stack]; // Start with current stack state
 
