@@ -15,3 +15,31 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@keyframes itemSlideIn {
+  from { opacity: 0; transform: translateY(-100%); } /* Enters from top */
+  to { opacity: 1; transform: translateY(0); }
+}
+.item-animate-in {
+  animation: itemSlideIn 0.5s forwards;
+}
+
+@keyframes itemSlideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-100%); } /* Exits to top */
+}
+.item-animate-out {
+  animation: itemSlideOut 0.5s forwards;
+}
+
+.stack-u-container {
+  border-left: 3px solid #9ca3af; /* gray-400 */
+  border-right: 3px solid #9ca3af;
+  border-bottom: 3px solid #9ca3af;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  padding: 10px 10px 0px 10px; /* Padding for items inside */
+  min-height: 100px; /* Ensure U-shape is visible even if empty */
+  width: 220px; /* Fixed width for the U-shape container */
+  margin: 0 auto; /* Center the U-shape container */
+}
