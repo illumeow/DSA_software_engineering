@@ -19,33 +19,33 @@ history_log = []
 stack = []
 size = 0
 maxsize = 0
+elementType = "int"
 
-compare_method = 0  # 0: decreasing, 1: increasing
+cmp_method = 0  # 0: decreasing, 1: increasing
 
-def cmp(a: int, b: int, x: int) -> int:
-    if x == 0:
-        return a > b
-    elif x == 1:
-        return a < b
+def cmp(a: int|str, b: int|str, x: int) -> bool:
+    return a > b if x == 0 else a < b
     
 # define the format of the data received
 class Create_Item(BaseModel):
-    value: str  # can be string or int
-    maxsize: int
+    method: int  # 0: decreasing, 1: increasing
+    maxSize: int
+    elementType: str  # "int" or "string"
 
 class Item(BaseModel):
-    value: str  # only need value for push
+    value: int|str
 
 @app.post("/stack/create")
 async def create_stack(item: Create_Item):
-    global stack, compare_method, size, maxsize, history_log
-    stack = []  # rebuild a new empty stack
+    global stack, cmp_method, size, maxsize, history_log, elementType
+    stack = []
     size = 0
-    maxsize = item.maxsize  # get maxsize from item
-    compare_method = int(item.value)  # remember the compare method
+    cmp_method = item.method
+    maxsize = item.maxSize
+    elementType = item.elementType
 
     history_log.append(f"with max size: {maxsize}")
-    history_log.append(f"Create Stack ({'Decreasing' if compare_method == 0 else 'Increasing'})")
+    history_log.append(f"Create Stack ({'Decreasing' if cmp_method == 0 else 'Increasing'})")
 
     return {
         "message": "Stack created",
@@ -53,25 +53,27 @@ async def create_stack(item: Create_Item):
         "history": history_log
     }
 
-# PUSH (receive parameters)
 @app.post("/stack/push")
 async def push_item(item: Item):
-    global stack, size, compare_method, maxsize, history_log
+    global stack, size, cmp_method, maxsize, history_log
     popped = []
-
-    if(size >= maxsize):
+    
+    if size >= maxsize:
         return {"message": "Stack is full", "stack": stack, "history": history_log, "popped": popped}
     
-    while(size > 0 and cmp(int(item.value), int(stack[size-1]), compare_method)):
+    while(size > 0 and cmp(item.value, stack[size-1], cmp_method)):
         value = stack.pop()
         popped.append(value)
         size -= 1    
         history_log.append(f"pop: {value}")   
 
-    stack.append(item.value)
+    stack.append(item.value if elementType == "string" else int(item.value))
     size += 1
 
-    history_log.append(f"push: {item.value}")
+    if elementType == "string":
+        history_log.append(f"push: \"{item.value}\"")
+    else:
+        history_log.append(f"push: {int(item.value)}")
 
     return {
         "message": "Pushed successfully",

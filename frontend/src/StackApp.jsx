@@ -6,8 +6,11 @@ function App() {
   const [newItem, setNewItem] = useState('');
   const [message, setMessage] = useState('');
   const [maxSize, setMaxSize] = useState('');
+  const [cmpMethod, setCmpMethod] = useState(1);
+  const [elementType, setElementType] = useState('int');
   const [history, setHistory] = useState([]);
   const [currentMaxSize, setCurrentMaxSize] = useState('');
+  const [currentElementType, setCurrentElementType] = useState('int');
   const [showIntro, setShowIntro] = useState(false);
   
   const animationItemIdCounter = useRef(0);
@@ -85,29 +88,34 @@ function App() {
   };
 
   // Create Stack function
-  const createStack = async (method) => {
+  const createStack = async () => {
     try {
       if (!maxSize || maxSize === '') {
         setMessage('Please enter a max stack size.');
         return;
       }
-      const payload = { value: method.toString(), maxsize: parseInt(maxSize, 10) };
+      const payload = { method: parseInt(cmpMethod, 10), maxSize: parseInt(maxSize, 10), elementType: elementType };
       const response = await axios.post('http://127.0.0.1:8000/stack/create', payload);
       setStack(mapBackendStack(response.data.stack));
       setMessage(response.data.message);
       setHistory(response.data.history || []);
       setCurrentMaxSize(maxSize);
+      setCurrentElementType(elementType);
       setMaxSize('');
     } catch (error) {
       console.error('Error creating stack:', error);
-      setMessage('Failed to create stack.');
+      setMessage('Failed to create stack');
     }
   };
 
   // Push item to stack
   const pushItem = async () => {
+    if (currentMaxSize === '') {
+      setMessage('Please create a stack first');
+      return;
+    }
     if (!newItem) {
-      setMessage('Please enter a number');
+      setMessage('Please enter a ' + (currentElementType === 'string' ? 'string' : 'integer'));
       return;
     }
     try {
@@ -191,6 +199,10 @@ function App() {
   
   // Pop item from stack
   const popItem = async () => {
+    if (currentMaxSize === '') {
+      setMessage('Please create a stack first');
+      return;
+    }
     if (stack.length === 0) {
       setMessage("Stack is empty.");
       return;
@@ -328,6 +340,14 @@ function App() {
     );
   };
 
+  const changeElementType = (e) => {
+    setElementType(e.target.checked ? 'string' : 'int');
+  };
+
+  const changeCmpMethod = (e) => {
+    setCmpMethod(e.target.checked ? 0 : 1);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10 px-4">
       <div className="bg-white shadow-2xl rounded-xl p-8 w-full max-w-4xl">
@@ -353,7 +373,7 @@ function App() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Controls and Stack Visualization Column */}
           <div className="flex-grow lg:w-2/3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
               <input
                 type="number"
                 value={maxSize}
@@ -361,19 +381,33 @@ function App() {
                 placeholder="Enter max stack size"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
               />
-              <div className="flex gap-2">
-                <button
-                  onClick={() => createStack(0)}
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105"
-                >
-                  Create Stack (Decreasing)
-                </button>
-                <button
-                  onClick={() => createStack(1)}
-                  className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105"
-                >
-                  Create Stack (Increasing)
-                </button>
+              <div className="flex flex-col gap-2">
+                <div className="flex-1 flex flex-row gap-2">
+                  <button
+                    onClick={createStack}
+                    className="flex-1 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold p-3 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105"
+                  >
+                    Create
+                  </button>
+                  <div className="flex-1 flex items-center justify-center space-x-2">
+                    <span className="text-gray-700">Integer</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" className="sr-only peer" checked={elementType === 'string'} onChange={changeElementType} />
+                      <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors"></div>
+                      <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform peer-checked:translate-x-full"></div>
+                    </label>
+                    <span className="text-gray-700">String</span>
+                  </div>
+                </div>
+                <div className="flex-1 flex items-center justify-center space-x-2">
+                  <span className="text-gray-700">Increasing</span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" className="sr-only peer" checked={cmpMethod === 0} onChange={changeCmpMethod} />
+                    <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors"></div>
+                    <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform peer-checked:translate-x-full"></div>
+                  </label>
+                  <span className="text-gray-700">Decreasing</span>
+                </div>
               </div>
             </div>
 
@@ -382,7 +416,7 @@ function App() {
                 type="text"
                 value={newItem}
                 onChange={(e) => setNewItem(e.target.value)}
-                placeholder="Enter value to push"
+                placeholder={`Enter a ${currentElementType === 'string' ? 'string' : 'integer'} to push`}
                 className="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow"
               />
               <button
@@ -472,7 +506,7 @@ function App() {
           {/* History Log Column */}
           <div className="lg:w-1/3 lg:border-l lg:pl-8 border-gray-200">
             <h2 className="text-2xl font-semibold mb-4 text-gray-800 sticky top-0 bg-white py-2">History Log</h2>
-            <ul style={{ height: `${stack.length > 1 ? `calc(${188 + 8 * stack.length}px + ${(19 + stack.length * 12) * 0.25}rem)` : 'calc(278px + 4.75rem)'}` }} className="bg-gray-50 rounded-lg p-4 space-y-2 overflow-y-auto shadow-inner">
+            <ul style={{ height: `${stack.length > 1 ? `calc(${196 + 8 * stack.length}px + ${(19 + stack.length * 12) * 0.25}rem)` : 'calc(286px + 4.75rem)'}` }} className="bg-gray-50 rounded-lg p-4 space-y-2 overflow-y-auto shadow-inner">
               {displayhis_log()}
             </ul>
           </div>
