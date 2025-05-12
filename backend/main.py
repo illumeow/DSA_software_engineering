@@ -90,7 +90,10 @@ async def pop_item():
     # stack will not be empty, because we check it in the frontend
     removed = stack.pop()
     size -= 1
-    history_log.append(f"pop: {removed}")
+    if elementType == "string":
+        history_log.append(f"pop: \"{removed}\"")
+    else:
+        history_log.append(f"pop: {removed}")
     return {"message": f"Popped {removed}", "stack": stack, "history": history_log}
 
 @app.post("/stack/clear")
