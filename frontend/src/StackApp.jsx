@@ -204,7 +204,7 @@ function App() {
       return;
     }
     if (stack.length === 0) {
-      setMessage("Stack is empty.");
+      setMessage("Stack is empty");
       return;
     }
     
@@ -218,7 +218,7 @@ function App() {
     }
 
     if (!topItemToPopId) {
-        setMessage("No item available to pop (all items might be animating out).");
+        setMessage("No item available to pop (all items might be animating out)");
         return;
     }
 
@@ -329,10 +329,11 @@ function App() {
 
             <h3 className="font-semibold text-lg text-gray-800">How to Use This Explorer:</h3>
             <ol className="list-decimal pl-5 space-y-2 mx-auto max-w-fit">
-              <li className="text-left">Set the maximum size of your stack</li>
-              <li className="text-left">Create a monotonic increasing or decreasing stack</li>
+              <li className="text-left">Set the maximum size, element type, <br />and order of your stack</li>
+              <li className="text-left">Create a stack</li>
               <li className="text-left">Push elements to see how they affect the stack</li>
               <li className="text-left">Watch how elements are automatically popped <br />to maintain the monotonic property</li>
+              <li className="text-left">Full documentation is available <a href="https://hackmd.io/@illumeow/SJlu0O1Wxl" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">here</a></li>
             </ol>
           </div>
         </div>
@@ -455,7 +456,7 @@ function App() {
             </div>
             
             <div className="mb-4 text-center text-gray-700">
-              <span className="font-semibold">Items:</span> {stack.filter(item => item.animation !== 'out').length} / 
+              <span className="font-semibold">Elements:</span> {stack.filter(item => item.animation !== 'out').length} / 
               <span className="font-semibold"> Max Size:</span> {currentMaxSize || "N/A"}
             </div>
 
