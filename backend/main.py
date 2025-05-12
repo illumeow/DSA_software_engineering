@@ -60,20 +60,22 @@ async def push_item(item: Item):
     
     if size >= maxsize:
         return {"message": "Stack is full", "stack": stack, "history": history_log, "popped": popped}
+
+    push_value = item.value if elementType == "string" else int(item.value)
     
-    while(size > 0 and cmp(item.value, stack[size-1], cmp_method)):
+    while(size > 0 and cmp(push_value, stack[size-1], cmp_method)):
         value = stack.pop()
         popped.append(value)
         size -= 1    
         history_log.append(f"pop: {value}")   
 
-    stack.append(item.value if elementType == "string" else int(item.value))
+    stack.append(push_value)
     size += 1
 
     if elementType == "string":
-        history_log.append(f"push: \"{item.value}\"")
+        history_log.append(f"push: \"{push_value}\"")
     else:
-        history_log.append(f"push: {int(item.value)}")
+        history_log.append(f"push: {push_value}")
 
     return {
         "message": "Pushed successfully",

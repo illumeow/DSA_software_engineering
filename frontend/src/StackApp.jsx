@@ -177,7 +177,7 @@ function App() {
 
       // 3. Clear 'in' animation, set to idle
       setStack(prev => prev.map(item =>
-        item.value === newItem && item.animation === 'in' ? { ...item, animation: 'idle' } : item
+        item.value === (currentElementType === 'string' ? newItem : parseInt(newItem)) && item.animation === 'in' ? { ...item, animation: 'idle' } : item
       ));
       // --- End Animation Sequence ---
 
