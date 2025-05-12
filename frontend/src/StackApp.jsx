@@ -280,6 +280,53 @@ function App() {
     return ret;
   };
 
+  const displayIntro = () => {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 max-h-[60vh] overflow-y-auto">
+          <div className="flex flex-row items-center mb-4">
+            <h2 className="text-2xl font-bold text-gray-800 flex-grow text-center">Introduction to Monotonic Stack</h2>
+            <button
+              onClick={() => setShowIntro(false)}
+              className="text-gray-500 hover:text-gray-700 w-[10px] text-right"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="space-y-4 text-gray-700">
+            <p>
+              A monotonic stack is a stack that maintains its elements in either increasing or decreasing order.
+              The order goes from bottom to top.
+              It's particularly useful for solving problems involving finding the next greater/smaller element.
+              This technique helps reduce the time complexity of many problems from O(n²) to O(n) by ensuring that each element is pushed and popped at most once.
+            </p>
+            
+            <h3 className="font-semibold text-lg text-gray-800">Key Characteristics:</h3>
+            <ul className="list-disc pl-5 space-y-2 mx-auto max-w-fit">
+              <li className="text-left">Elements are always monotonic</li>
+              <li className="text-left">When a new element is pushed, <br />elements that violate the order are popped</li>
+            </ul>
+
+            <h3 className="font-semibold text-lg text-gray-800">Common Applications:</h3>
+            <ul className="list-disc pl-5 space-y-2 mx-auto max-w-fit">
+              <li className="text-left">Finding the next greater/smaller element in an array</li>
+              <li className="text-left">Finding the largest rectangle in a histogram</li>
+              <li className="text-left">Solving sliding window maximum/minimum problems</li>
+              <li className="text-left">Maintaining a specific order of elements in a sequence</li>
+            </ul>
+
+            <h3 className="font-semibold text-lg text-gray-800">How to Use This Explorer:</h3>
+            <ol className="list-decimal pl-5 space-y-2 mx-auto max-w-fit">
+              <li className="text-left">Set the maximum size of your stack</li>
+              <li className="text-left">Create a monotonic increasing or decreasing stack</li>
+              <li className="text-left">Push elements to see how they affect the stack</li>
+              <li className="text-left">Watch how elements are automatically popped <br />to maintain the monotonic property</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10 px-4">
@@ -301,51 +348,7 @@ function App() {
         </div>
 
         {/* Introduction Modal */}
-        {showIntro && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 max-h-[60vh] overflow-y-auto">
-              <div className="flex flex-row items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-800 flex-grow text-center">Introduction to Monotonic Stack</h2>
-                <button
-                  onClick={() => setShowIntro(false)}
-                  className="text-gray-500 hover:text-gray-700 w-[10px] text-right"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="space-y-4 text-gray-700">
-                <p>
-                  A monotonic stack is a stack that maintains its elements in either increasing or decreasing order.
-                  The order goes from bottom to top.
-                  It's particularly useful for solving problems involving finding the next greater/smaller element.
-                  This technique helps reduce the time complexity of many problems from O(n²) to O(n) by ensuring that each element is pushed and popped at most once.
-                </p>
-                
-                <h3 className="font-semibold text-lg text-gray-800">Key Characteristics:</h3>
-                <ul className="list-disc pl-5 space-y-2 mx-auto max-w-fit">
-                  <li className="text-left">Elements are always monotonic</li>
-                  <li className="text-left">When a new element is pushed, <br />elements that violate the order are popped</li>
-                </ul>
-
-                <h3 className="font-semibold text-lg text-gray-800">Common Applications:</h3>
-                <ul className="list-disc pl-5 space-y-2 mx-auto max-w-fit">
-                  <li className="text-left">Finding the next greater/smaller element in an array</li>
-                  <li className="text-left">Finding the largest rectangle in a histogram</li>
-                  <li className="text-left">Solving sliding window maximum/minimum problems</li>
-                  <li className="text-left">Maintaining a specific order of elements in a sequence</li>
-                </ul>
-
-                <h3 className="font-semibold text-lg text-gray-800">How to Use This Explorer:</h3>
-                <ol className="list-decimal pl-5 space-y-2 mx-auto max-w-fit">
-                  <li className="text-left">Set the maximum size of your stack</li>
-                  <li className="text-left">Create a monotonic increasing or decreasing stack</li>
-                  <li className="text-left">Push elements to see how they affect the stack</li>
-                  <li className="text-left">Watch how elements are automatically popped <br />to maintain the monotonic property</li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        )}
+        {showIntro && displayIntro()}
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Controls and Stack Visualization Column */}
