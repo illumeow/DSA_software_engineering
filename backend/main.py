@@ -67,7 +67,10 @@ async def push_item(item: Item):
         value = stack.pop()
         popped.append(value)
         size -= 1    
-        history_log.append(f"pop: {value}")   
+        if elementType == "string":
+            history_log.append(f"pop: \"{value}\"")
+        else:
+            history_log.append(f"pop: {value}")
 
     stack.append(push_value)
     size += 1
