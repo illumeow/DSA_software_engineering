@@ -1,4 +1,4 @@
-# Monotonic Stack Documentation
+# Monotonic Stack Explorer
 
 ## Introduction
 
